@@ -1,7 +1,7 @@
 package com.safegraze.day01;
 
-import java.io.IOException;
-import java.nio.file.Files;
+import com.safegraze.shared.SubmarineUtils;
+
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,12 +33,7 @@ public class SonarSlice {
     }
 
     public static List<SonarSlice> makeSlices(Path path) {
-        List<String> values = null;
-        try {
-            values = Files.readAllLines(path);
-        } catch (IOException e) {
-            throw new RuntimeException("Cannot continue!");
-        }
+        List<String> values = SubmarineUtils.parseRawInput(path);
 
         // wasn't obvious how to coax this into streams, and certainly no obvious performance benefit [O(n)]
         List<SonarSlice> slices = new ArrayList<>(values.size());
@@ -52,4 +47,5 @@ public class SonarSlice {
 
         return slices;
     }
+
 }
