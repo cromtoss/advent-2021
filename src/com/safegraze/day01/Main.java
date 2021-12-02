@@ -10,8 +10,8 @@ public class Main {
     public static void main(String[] args) {
         //open file
         Path path = FileSystems.getDefault().getPath("/home/cromtoss/repo/advent-2021/day01-input.txt");
-        List<SonarDyad> dyads = SonarDyad.sonarDyads(path);
-        long result = dyads.parallelStream().filter(SonarDyad::isDeeper).count();
+        List<SonarSlice> slices = SonarSlice.makeSlices(path);
+        long result = slices.parallelStream().filter(SonarSlice::isDeeper).count();
 
         System.out.println("The result is: " + result);
     }
