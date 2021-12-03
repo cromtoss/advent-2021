@@ -1,0 +1,4 @@
+src/.idea
+src/out
+src/advent-2021.iml
+*.txt:Zone.Identifier
