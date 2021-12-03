@@ -13,9 +13,13 @@ public class Main {
         List<String> rawInputLines = SubmarineUtils.parseRawInput(path);
         BinaryLogCounter logCounter = BinaryLogCounter.make(rawInputLines);
 
-        int[] rates = logCounter.getRates();
-        System.out.println("Current gamma is: " + rates[0]);
-        System.out.println("Current epsilon is: " + rates[1]);
+//        int[] rates = logCounter.getRates();
+//        System.out.println("Current gamma is: " + rates[0]);
+//        System.out.println("Current epsilon is: " + rates[1]);
+
+        int[] rates = logCounter.getLifeSupportRating();
+        System.out.println("Current oxygen value is: " + rates[0]);
+        System.out.println("Current carbon value is: " + rates[1]);
 
         long product = (long) rates[0] * (long) rates[1];
         System.out.println("Current product is: " + product);
