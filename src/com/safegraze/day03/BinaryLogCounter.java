@@ -1,7 +1,5 @@
 package com.safegraze.day03;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -10,62 +8,43 @@ public class BinaryLogCounter {
     private static final String OXYGEN_MAP_KEY = "oxygen";
     private static final String CARBON_MAP_KEY = "carbon";
 
-    private List<String> trimmedLogData;
-    private HashMap<String, List<String>> lifeSupportMap = new HashMap<>(2);
-    private final List<Integer> numberOfZeroesPerPosition;
-    private final List<Integer> numberOfOnesPerPosition;
+    private final HashMap<String, List<String>> lifeSupportMap = new HashMap<>(2);
 
-    private BinaryLogCounter(int size) {
-        numberOfZeroesPerPosition = new ArrayList<Integer>(Collections.nCopies(size, 0));
-        numberOfOnesPerPosition = new ArrayList<Integer>(Collections.nCopies(size, 0));
+    private final long[] countOfZeroes;
+    private final long[] countOfOnes;
+
+    private BinaryLogCounter(List<String> rawInput, int size) {
+        countOfZeroes = new long[size];
+        countOfOnes = new long[size];
+
+        lifeSupportMap.put(OXYGEN_MAP_KEY, rawInput);
+        lifeSupportMap.put(CARBON_MAP_KEY, rawInput);
     }
 
     public static BinaryLogCounter make(List<String> rawBinaryLogData) {
-        int logEntrySize = rawBinaryLogData.get(0).trim().length();
-        BinaryLogCounter counter = new BinaryLogCounter(logEntrySize);
-        counter.trimmedLogData = new ArrayList<>(rawBinaryLogData.size());
+        int logEntrySize = rawBinaryLogData.get(0).length();
+        BinaryLogCounter counter = new BinaryLogCounter(rawBinaryLogData, logEntrySize);
 
-        for (int i = 0; i < rawBinaryLogData.size(); i++) {
-            String logEntry = rawBinaryLogData.get(i);
-            String trimmedEntry = logEntry.trim();
-            counter.trimmedLogData.add(trimmedEntry);
-            char[] logPositionMeasurements = trimmedEntry.toCharArray();
-            for (int j = 0; j < logPositionMeasurements.length; j++) {
-                char positionalMeasurement = logPositionMeasurements[j];
-                if (positionalMeasurement == '0') {
-                    int update = counter.numberOfZeroesPerPosition.get(j) + 1;
-                    counter.numberOfZeroesPerPosition.set(j, update);
-                } else if (positionalMeasurement == '1') {
-                    int update = counter.numberOfOnesPerPosition.get(j) + 1;
-                    counter.numberOfOnesPerPosition.set(j, update);
-                } else {
-                    throw new RuntimeException("Unexpected character in binary log entry: " + positionalMeasurement);
-                }
-            }
+        for (int index = 0; index < logEntrySize; index++) {
+            final int effectivelyFinal = index;
+            counter.countOfZeroes[index] = rawBinaryLogData.parallelStream().filter(x -> Character.valueOf(x.charAt(effectivelyFinal)).equals('0')).count();
+            counter.countOfOnes[index] = rawBinaryLogData.parallelStream().filter(x -> Character.valueOf(x.charAt(effectivelyFinal)).equals('1')).count();
         }
 
         return counter;
     }
 
-    public List<Integer> getNumberOfZeroesPerPosition() {
-        return numberOfZeroesPerPosition;
-    }
-
-    public List<Integer> getNumberOfOnesPerPosition() {
-        return numberOfOnesPerPosition;
-    }
-
-    public int[] getRates() {
+    public int[] getGammaEpsilon() {
         int[] rates = new int[2];
-        int size = numberOfZeroesPerPosition.size();
+        int size = countOfZeroes.length;
 
         StringBuilder gammaBinaryAsString = new StringBuilder(size);
         StringBuilder epsilonBinaryAsString = new StringBuilder(size);
         for (int i = 0; i < size; i++) {
-            if (numberOfZeroesPerPosition.get(i) > numberOfOnesPerPosition.get(i)) {
+            if (countOfZeroes[i] > countOfOnes[i]) {
                 gammaBinaryAsString.append('0');
                 epsilonBinaryAsString.append('1');
-            } else if (numberOfOnesPerPosition.get(i) > numberOfZeroesPerPosition.get(i)) {
+            } else if (countOfOnes[i] > countOfZeroes[i]) {
                 gammaBinaryAsString.append('1');
                 epsilonBinaryAsString.append('0');
             } else {
@@ -79,11 +58,9 @@ public class BinaryLogCounter {
         return rates;
     }
 
-    public int[] getLifeSupportRating() {
-        int[] rates = new int[2];
-        int size = numberOfZeroesPerPosition.size();
+    public synchronized int[] getLifeSupportRating() {
+        int size = countOfZeroes.length;
 
-        initializeMap();
         for(int index = 0; index < size; index++) {
             filterCandidates(index);
         }
@@ -92,18 +69,10 @@ public class BinaryLogCounter {
             throw new RuntimeException("Single values were not found when filtering life support data per rules!");
         }
 
-        rates[0] = Integer.parseInt(lifeSupportMap.get(OXYGEN_MAP_KEY).get(0), 2);
-        rates[1] = Integer.parseInt(lifeSupportMap.get(CARBON_MAP_KEY).get(0), 2);
+        int oxygenValue = Integer.parseInt(lifeSupportMap.get(OXYGEN_MAP_KEY).get(0), 2);
+        int carbonValue = Integer.parseInt(lifeSupportMap.get(CARBON_MAP_KEY).get(0), 2);
 
-        return rates;
-    }
-
-    /**
-     * Terrible coding with mutable internal state; think about immutable approaches.
-     */
-    private void initializeMap() {
-        lifeSupportMap.put(OXYGEN_MAP_KEY, trimmedLogData);
-        lifeSupportMap.put(CARBON_MAP_KEY, trimmedLogData);
+        return new int[] {oxygenValue, carbonValue};
     }
 
     private void filterCandidates(int index) {
