@@ -25,14 +25,12 @@ public class Main {
         LanternfishSchool school = new LanternfishSchool(fishTimersNumeric);
 
         short iterations = NUM_ITERATIONS;
-        while (iterations > 0) {
+        while (iterations > 1) {
+            System.out.println("Iteration: " + iterations + " School size: " + school.getNumberOfFish());
             school.advanceDay();
             iterations--;
         }
     
         System.out.println("Number of fish is: " + school.getNumberOfFish());
     }
-
-        
-    
 }

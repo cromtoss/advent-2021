@@ -1,33 +1,36 @@
 package com.safegraze.day06;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class LanternfishSchool {
 
-	final List<Lanternfish> school;
+	final long[] numericSolution = new long[LanternfishUtils.TIMER_FOR_BIRTHED_FISH+1];
 
 	public LanternfishSchool(List<Short> initialFishByTimer) {
-
-		school = new ArrayList<>(initialFishByTimer.size()^2);
-		initialFishByTimer.stream().map(Lanternfish::new).forEach(school::add);
+		initialFishByTimer.stream().forEach(s -> numericSolution[s-1]++);
 	}
 
 	public void advanceDay() {
 		//count number of fish reproducing today
-		long numReproducing = school.stream().filter(f -> f.isTimeToReproduce()).count();
+		long numReproducing = numericSolution[0];
 
 		//advance day for all existing fish
-		school.forEach(Lanternfish::advanceDay);
-
-		while (numReproducing > 0) {
-			school.add(new Lanternfish());
-			numReproducing--;
+		for (int i = 1; i < numericSolution.length; i++) {
+			numericSolution[i-1] = numericSolution[i];
 		}
+
+		//for number of fish that reproduced today, add them to the fish with the appropriate reproduction timer index
+		numericSolution[LanternfishUtils.TIMER_AFTER_REPRODUCTION] += numReproducing;
+
+		//all newly born fish are entered in the appropriate index
+		numericSolution[LanternfishUtils.TIMER_FOR_BIRTHED_FISH] = numReproducing;
 	}
 
-	public int getNumberOfFish() {
-		return school.size();
+	public long getNumberOfFish() {
+		return Arrays.stream(numericSolution).sum();
 	}
 	
 }
