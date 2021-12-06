@@ -26,7 +26,6 @@ public class Main {
 
         short iterations = NUM_ITERATIONS;
         while (iterations > 1) {
-            System.out.println("Iteration: " + iterations + " School size: " + school.getNumberOfFish());
             school.advanceDay();
             iterations--;
         }
