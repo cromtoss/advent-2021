@@ -31,12 +31,18 @@ public class Main {
 		int[] costPerIndex = new int[maxPosition+1];
 		for (int i = 0; i < maxPosition + 1; i++) {
 			final int index = i;
-			costPerIndex[i] = IntStream.range(0, costPerIndex.length).map(j -> crabsAtIndex[j] * Math.abs(j - index)).reduce(0, Integer::sum);
+			costPerIndex[i] = IntStream.range(0, costPerIndex.length).map(j -> crabsAtIndex[j] * costToMoveBetweenIndices(j, index)).reduce(0, Integer::sum);
 		}
 
 		int minCost = Arrays.stream(costPerIndex).min().getAsInt();
 		System.out.println("Answer is: " + minCost);
 
     }
+
+	private static int costToMoveBetweenIndices(int x, int y) {
+		int ordinalDifference = Math.abs(x - y);
+		int triangle = (ordinalDifference == 0) ? 0 : ((ordinalDifference * ordinalDifference) + ordinalDifference) / 2;
+		return triangle;
+	}
 	
 }
