@@ -14,15 +14,20 @@ public class Main {
         Path path = FileSystems.getDefault().getPath("/home/cromtoss/repo/advent-2021/day08-input.txt");
         List<String> rawInputLines = SubmarineUtils.parseRawInput(path);
 		
-		List<String> segmentOutputValues = new ArrayList<>(rawInputLines.size());
+		List<String> decodedValues = new ArrayList<>(rawInputLines.size());
 		for (String rawLine : rawInputLines) {
 			String[] rawSplitted = rawLine.split("\\s+\\|\\s+");
-			String rawOutputValues = rawSplitted[1].trim();
-			segmentOutputValues.addAll(Arrays.asList(rawOutputValues.split(" ")));
+
+			List<String> observedInputs = Arrays.asList(rawSplitted[0].trim().split(" "));
+			List<String> stringsToDecode = Arrays.asList(rawSplitted[1].trim().split(" "));
+			DigitDecoder lineDecoder = new DigitDecoder(observedInputs, stringsToDecode);
+			decodedValues.add(lineDecoder.decode());
 		}
 
-		List<String> uniqueLengthOutputDigits = segmentOutputValues.stream().filter(s -> s.length() == 2 || s.length() == 3 || s.length() == 4 || s.length() == 7).toList();
-		System.out.println("Result is: " + uniqueLengthOutputDigits.size());
+		long sum = decodedValues.stream().map(Integer::parseInt).reduce(0, Integer::sum);
+
+		System.out.println("Sum of lines decoded: " + sum);
+
 	}
 
 	
